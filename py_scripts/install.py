@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import time
+import win32com.client as win32
 
 # all files required to run app
 APP_FILES = [
@@ -74,9 +75,6 @@ def main():
     while True:
         # file title
         shortcut_title = input("\nwhat would you like to name the shortcut to start the app?  ")
-
-        # use pywin32 to make shortcut, save it on desktop
-        import win32com.client as win32 
 
         # depending on version of windows, might have OneDrive folder
         onedrive = os.path.isdir(rf"C:\Users\{os.getlogin()}\OneDrive")
