@@ -1,0 +1,4 @@
+pwinput
+pyperclip
+cryptography
+pywin32
