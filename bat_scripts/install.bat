@@ -6,6 +6,7 @@ where python >nul 2>&1
 :: run install if successful
 if %errorlevel%==0 (
     cd ..
+    call install_venv/Scripts/activate.bat
     cd py_scripts
     python install.py
 ) else (
