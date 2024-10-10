@@ -6,9 +6,7 @@ where python >nul 2>&1
 :: run install if successful
 if %errorlevel%==0 (
     cd ..
-    call install_venv/Scripts/activate.bat
-    cd py_scripts
-    python install.py
+    install_venv\Scripts\python py_scripts\install.py 
 ) else (
     echo python not found on system PATH 
     echo if you have not installed python, please install before next attempt

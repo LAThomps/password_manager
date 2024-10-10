@@ -7,11 +7,11 @@ import time
 
 # all files required to run app
 APP_FILES = [
-    "../json_files/config.json",
-    "main.py",
-    "../json_files/mgr.json",
-    "passmgmt.py",
-    "../requirements.txt"
+    "json_files/config.json",
+    "py_scripts/main.py",
+    "json_files/mgr.json",
+    "py_scripts/passmgmt.py",
+    "requirements.txt"
 ]
 
 # windows .bat script to launch app once installed 
@@ -37,13 +37,16 @@ def main():
             app_dir = os.path.join(prefix, ".pw_mgr")
         else:
             app_dir = os.path.join(prefix, dir_input)
-        try:
-            os.mkdir(app_dir)
-            break
-        except FileNotFoundError:
-            dir_input = input(f"""
-            `{app_dir}` not a valid directory path
-            enter a new path or `d` for the default""")
+        if os.path.isdir(app_dir):
+            dir_input = input(f"directory `{app_dir}` already exists, please choose another name:  ")
+        else:
+            try:
+                os.mkdir(app_dir)
+                break
+            except FileNotFoundError:
+                dir_input = input(f"""
+                `{app_dir}` not a valid directory path
+                enter a new path or `d` for the default  """)
 
     # copy files over into new directory
     print("\nbuilding app directory")
@@ -67,30 +70,37 @@ def main():
     with open("startup.bat", "w") as file:
         file.write(STARTUP_SCRIPT)
 
-    ## make desktop shortcut
-    shortcut_title = input("\nwhat would you like to name the shortcut to start the app?  ")
+    # make desktop shortcut
+    while True:
+        # file title
+        shortcut_title = input("\nwhat would you like to name the shortcut to start the app?  ")
 
-    # use pywin32 to make shortcut, save it on desktop
-    import win32com.client as win32 
+        # use pywin32 to make shortcut, save it on desktop
+        import win32com.client as win32 
 
-    # depending on version of windows, might have OneDrive folder
-    onedrive = os.path.isdir(rf"C:\Users\{os.getlogin()}\OneDrive")
-    desktop_path = "Desktop" if not onedrive else r"OneDrive\Desktop"
+        # depending on version of windows, might have OneDrive folder
+        onedrive = os.path.isdir(rf"C:\Users\{os.getlogin()}\OneDrive")
+        desktop_path = "Desktop" if not onedrive else r"OneDrive\Desktop"
 
-    # make path
-    shortcut_path = os.path.join(
-        rf"C:\Users\{os.getlogin()}",
-        desktop_path,
-        f"{shortcut_title}.lnk"
-    )
-
-    # build shortcut to launch startup.bat on click
-    shell = win32.Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortcut(shortcut_path)
-    shortcut.TargetPath = os.path.join(app_dir, "startup.bat")
-    shortcut.WorkingDirectory = app_dir
-    shortcut.Description = "Password Manager"
-    shortcut.save()
+        # make path
+        shortcut_path = os.path.join(
+            rf"C:\Users\{os.getlogin()}",
+            desktop_path,
+            f"{shortcut_title}.lnk"
+        )
+        
+        # don't let user try and make a new file with a taken name
+        if os.path.isfile(shortcut_path):
+            print(f"file already located at {shortcut_path}, choose a different name")
+        else:
+            # build shortcut to launch startup.bat on click
+            shell = win32.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortcut(shortcut_path)
+            shortcut.TargetPath = os.path.join(app_dir, "startup.bat")
+            shortcut.WorkingDirectory = app_dir
+            shortcut.Description = "Password Manager"
+            shortcut.save()
+            break
 
     print(f"\nshortcut saved at {shortcut_path}")
     print("exiting...")
