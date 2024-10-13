@@ -4,6 +4,7 @@ import json
 import re
 import os
 import stat
+import time
 from pwinput import pwinput
 from cryptography.fernet import Fernet
 from passmgmt import WELCOME_STR, handle_client, read_json, dump_json
@@ -84,15 +85,14 @@ def initialize():
         key = Fernet.generate_key()
         fernet = Fernet(key)
 
-        # prompt user to save .key file in safe location
-        while True:
-            try:
-                print("\n**make sure you save the encryption key in a directory only you have access to**")
-                parent_dir = input("enter desired directory to store encryption key:  ")
-                key_path = make_path(parent_dir, "key.key")
-                break
-            except FileNotFoundError:
-                print(f"`{parent_dir}` is not a valid directory path, try again\n")
+        # make key in app dir, notify user to change KEY_LOCATION in meta.json file
+        # if desired to move
+        os.mkdir("stuff")
+        key_path = "stuff/key.key"
+        print("encryption key being saved under app directory")
+        print("**if you want to move the .key file, just update the KEY_LOCATION")
+        print("in the meta.json file (within the app directory)**\n")
+        time.sleep(5)
         
         # once good, save key as bytes
         with open(key_path, "wb") as file:
@@ -104,7 +104,7 @@ def initialize():
         return
 
     # data.json will contain the encrypted password information
-    data_path = make_path(config['DATA_LOCATION'], "data.json")
+    data_path = os.path.join(config['DATA_LOCATION'], "data.json")
 
     # config will get saved as meta.json, useful info to run app
     config['KEY_LOCATION'] = key_path
@@ -115,33 +115,6 @@ def initialize():
     dump_json(data_path, data, True, fernet)
     print("initialization complete\n\n")
     return
-
-def make_path(
-        config_val: str,
-        end_file: str
-    ) -> str:
-    """
-    Function for building valid filepath to end_fil
-
-    Parameters
-    ----------
-    config_val : str
-        directory path leading to destination
-    end_file : str
-        filename
-
-    Returns
-    -------
-    str
-        file path to store content
-    """
-    # if '.' passed, just save in cwd
-    if config_val == ".":
-        return end_file 
-    # make new directory, return file path
-    elif not os.path.isdir(config_val):
-        os.mkdir(config_val)
-    return os.path.join(config_val, end_file)
 
 
 def main():
@@ -161,8 +134,15 @@ def main():
 
     # read in meta information
     meta = read_json("meta.json", False)
-    with open(meta['KEY_LOCATION'], "rb") as file:
-        key = file.read()
+    try:
+        with open(meta['KEY_LOCATION'], "rb") as file:
+            key = file.read()
+    except:
+        print(f"unable to open/find key file `{meta['KEY_LOCATION']}`")
+        print("make sure file path is correct in meta.json")
+        print('exiting....')
+        time.sleep(5)
+        return
 
     # decrypt data file to verify user, permit password management
     fernet = Fernet(key)
