@@ -8,7 +8,8 @@ To download/install this app, simply download this repo and run the `install.bat
 the `bat_scripts` directory.
 
 If you run into problems running the `install.bat` file, just run the `install.py` file with your desired python<br>
-executable (only base libraries are used on install).
+executable (only base libraries are used on install). The install uses the `subprocess` module so make sure that<br>
+the user account you run the install from has the appropriate permissions to run subprocesses.
 
 The security of this app is based on the system access persmissions to your `C:\Users\<your username>` directory, if<br>
 you want to build an extra layer of security, move the .key file to a more secure location <b>and</b> update the app's<br>
