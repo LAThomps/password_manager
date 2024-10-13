@@ -4,7 +4,7 @@ An app to securely manage your passwords, written in python for Windows.<br>
 You will need python installed on your computer to use this app, and I've only built it for use on the `Windows OS` at<br>
 this time (if anyone would like a macOS/Linux version just let me know)
 
-To download/install this app, simply clone the this repo and run the `install.bat` file located in `bat_scripts` <b>from</b><br>
+To download/install this app, simply download this repo and run the `install.bat` file located in `bat_scripts` <b>from</b><br>
 the `bat_scripts` directory.
 
 If you run into problems running the `install.bat` file, just run the `install.py` file with your desired python<br>
