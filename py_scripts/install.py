@@ -4,7 +4,6 @@ import os
 import shutil
 import subprocess
 import time
-import win32com.client as win32
 
 # all files required to run app
 APP_FILES = [
@@ -12,14 +11,14 @@ APP_FILES = [
     "py_scripts/main.py",
     "json_files/mgr.json",
     "py_scripts/passmgmt.py",
-    "requirements.txt"
+    "requirements.txt",
+    "py_scripts/make_shortcut.py"
 ]
 
 # windows .bat script to launch app once installed 
-STARTUP_SCRIPT = """
+STARTUP_SCRIPT = r"""
 @echo off
-call app_venv/Scripts/activate.bat
-python main.py
+app_venv\Scripts\python main.py
 """
 
 def main():
@@ -44,7 +43,7 @@ def main():
             try:
                 os.mkdir(app_dir)
                 break
-            except FileNotFoundError:
+            except:
                 dir_input = input(f"""
                 `{app_dir}` not a valid directory path
                 enter a new path or `d` for the default  """)
@@ -92,12 +91,14 @@ def main():
             print(f"file already located at {shortcut_path}, choose a different name")
         else:
             # build shortcut to launch startup.bat on click
-            shell = win32.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortcut(shortcut_path)
-            shortcut.TargetPath = os.path.join(app_dir, "startup.bat")
-            shortcut.WorkingDirectory = app_dir
-            shortcut.Description = "Password Manager"
-            shortcut.save()
+            subprocess.check_call(
+                [
+                    "app_venv/Scripts/python", 
+                    "make_shortcut.py", 
+                    shortcut_path, 
+                    app_dir
+                ]
+            )
             break
 
     print(f"\nshortcut saved at {shortcut_path}")
