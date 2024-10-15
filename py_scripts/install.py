@@ -59,51 +59,60 @@ def main():
     os.chdir(app_dir)
     print("\ninstalling packages")
 
-    # make python venv for the app
-    subprocess.check_call("python -m venv app_venv", shell=True)
+    # error check for running subprocess
+    try:
+        # make python venv for the app
+        subprocess.check_call("python -m venv app_venv", shell=True)
 
-    # use pip to install required libraries into new venv
-    pip_exe = r"app_venv\Scripts\pip"
-    subprocess.check_call([pip_exe, "-q", "install", "-r", "requirements.txt"])
+        # use pip to install required libraries into new venv
+        pip_exe = r"app_venv\Scripts\pip"
+        subprocess.check_call([pip_exe, "-q", "install", "-r", "requirements.txt"])
 
-    # make .bat file to run app
-    with open("startup.bat", "w") as file:
-        file.write(STARTUP_SCRIPT)
+        # make .bat file to run app
+        with open("startup.bat", "w") as file:
+            file.write(STARTUP_SCRIPT)
 
-    # make desktop shortcut
-    while True:
-        # file title
-        shortcut_title = input("\nwhat would you like to name the shortcut to start the app?  ")
+        # make desktop shortcut
+        while True:
+            # file title
+            shortcut_title = input("\nwhat would you like to name the shortcut to start the app?  ")
 
-        # depending on version of windows, might have OneDrive folder
-        onedrive = os.path.isdir(rf"C:\Users\{os.getlogin()}\OneDrive")
-        desktop_path = "Desktop" if not onedrive else r"OneDrive\Desktop"
+            # depending on version of windows, might have OneDrive folder
+            onedrive = os.path.isdir(rf"C:\Users\{os.getlogin()}\OneDrive")
+            desktop_path = "Desktop" if not onedrive else r"OneDrive\Desktop"
 
-        # make path
-        shortcut_path = os.path.join(
-            rf"C:\Users\{os.getlogin()}",
-            desktop_path,
-            f"{shortcut_title}.lnk"
-        )
-        
-        # don't let user try and make a new file with a taken name
-        if os.path.isfile(shortcut_path):
-            print(f"file already located at {shortcut_path}, choose a different name")
-        else:
-            # build shortcut to launch startup.bat on click
-            subprocess.check_call(
-                [
-                    "app_venv/Scripts/python", 
-                    "make_shortcut.py", 
-                    shortcut_path, 
-                    app_dir
-                ]
+            # make path
+            shortcut_path = os.path.join(
+                rf"C:\Users\{os.getlogin()}",
+                desktop_path,
+                f"{shortcut_title}.lnk"
             )
-            break
+            
+            # don't let user try and make a new file with a taken name
+            if os.path.isfile(shortcut_path):
+                print(f"file already located at {shortcut_path}, choose a different name")
+            else:
+                # build shortcut to launch startup.bat on click
+                subprocess.check_call(
+                    [
+                        "app_venv/Scripts/python", 
+                        "make_shortcut.py", 
+                        shortcut_path, 
+                        app_dir
+                    ]
+                )
+                break
 
-    print(f"\nshortcut saved at {shortcut_path}")
-    print("exiting...")
-    time.sleep(5)
+        print(f"\nshortcut saved at {shortcut_path}")
+        print("exiting...")
+        time.sleep(5)
+    except:
+        print("\nexperienced error attempting to build app environment")
+        print("ensure you are running this install from a User account with")
+        print("admin privileges and that your anti-virus software permits")
+        print("subprocess calls from within python scripts")
+        time.sleep(20)
+        print("exiting...")
     return
 
 if __name__ == "__main__":
